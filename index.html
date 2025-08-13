@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>💶 Amilux — Calcul de Paie Luxembourg</title>
+<style>
+  :root{--bg:#0f172a;--panel:#111827;--muted:#94a3b8;--text:#e5e7eb;--accent:#22c55e;--accent2:#38bdf8;}
+  *{box-sizing:border-box} body{margin:0;background:#0b1020;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;color:var(--text)}
+  header{padding:16px 20px;background:linear-gradient(90deg,#0b1020,#0f172a);position:sticky;top:0;z-index:2;border-bottom:1px solid #0b1220}
+  header h1{margin:0;font-size:20px;letter-spacing:.3px;display:flex;gap:10px;align-items:center}
+  header h1 span{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .wrap{max-width:1200px;margin:20px auto;padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:16px 14px}
+  .card h2{margin:0 0 10px;font-size:16px;color:#fff}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  label{font-size:12px;color:var(--muted)}
+  input,select{width:100%;padding:10px 12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#e6edf3;border-radius:10px;outline:0}
+  input[type=number]{-moz-appearance:textfield} input::-webkit-outer-spin-button,input::-webkit-inner-spin-button{appearance:none;margin:0}
+  .pill{display:inline-flex;gap:8px;align-items:center;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:6px 10px;border-radius:999px;font-size:12px;margin:4px 6px 12px 0}
+  .btn{cursor:pointer;padding:10px 14px;border-radius:10px;border:1px solid rgba(255,255,255,.15);background:#111827;color:#e6edf3}
+  .btn.primary{background:linear-gradient(90deg,#22c55e,#38bdf8);border:none;color:#001b20;font-weight:700}
+  .metric{display:flex;flex-direction:column;gap:6px;padding:12px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+  .metric .title{font-size:12px;color:var(--muted)}
+  .metric .val{font-size:20px;font-weight:800}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .muted{color:var(--muted);font-size:12px}
+  .tabs{display:flex;gap:8px;margin-bottom:8px}
+  .tabs .tab{padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,.15);cursor:pointer}
+  .tabs .tab.active{background:rgba(56,189,248,.1);border-color:#38bdf8}
+  details{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:10px}
+  summary{cursor:pointer;font-weight:600}
+  .table{width:100%;border-collapse:collapse;font-size:12px}
+  .table th,.table td{border-bottom:1px solid rgba(255,255,255,.08);padding:8px;text-align:left}
+  .right{text-align:right}
+  .footer{max-width:1200px;margin:30px auto 50px;padding:0 16px;color:var(--muted);font-size:12px}
+</style>
+</head>
+<body>
+<header>
+  <h1>💶 <span>Amilux</span> — Calcul de Paie Luxembourg</h1>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+    <div class="tabs">
+      <div class="tab active" data-prof="gen">Générique</div>
+      <div class="tab" data-prof="as">Aide‑Soignant</div>
+    </div>
+    <div class="row">
+      <div>
+        <label>Classe d’impôt</label>
+        <select id="classe">
+          <option>1</option><option>1a</option><option>2</option>
+        </select>
+      </div>
+      <div>
+        <label>Enfants à charge (nb)</label>
+        <input id="enfants" type="number" step="1" min="0" value="0">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>Salaire Brut Mensuel (hors HS)</label>
+        <input id="brut" type="number" step="0.01" value="3000">
+      </div>
+      <div>
+        <label>Heures Base Mois</label>
+        <input id="hbase" type="number" step="0.01" value="173">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>HS Normales (heures)</label>
+        <input id="hsn" type="number" step="0.01" value="0">
+      </div>
+      <div>
+        <label>HS Dimanche (heures)</label>
+        <input id="hsd" type="number" step="0.01" value="0">
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>HS Jours Fériés (heures)</label>
+        <input id="hsf" type="number" step="0.01" value="0">
+      </div>
+      <div>
+        <label>Heures Nuit (heures)</label>
+        <input id="hnuit" type="number" step="0.01" value="0">
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>Heures Permanence (heures)</label>
+        <input id="hperma" type="number" step="0.01" value="0">
+      </div>
+      <div>
+        <label>Absence non payée (heures)</label>
+        <input id="habs" type="number" step="0.01" value="0">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>Primes fixes (imposables)</label>
+        <input id="pf" type="number" step="0.01" value="0">
+      </div>
+      <div>
+        <label>Primes variables (imposables)</label>
+        <input id="pv" type="number" step="0.01" value="0">
+      </div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>Avantages imposables</label>
+        <input id="avt" type="number" step="0.01" value="0">
+      </div>
+      <div>
+        <label>Indemnités non imposables</label>
+        <input id="indemn" type="number" step="0.01" value="0">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>Chèques repas — Nombre</label>
+        <input id="nbt" type="number" step="1" value="0">
+      </div>
+      <div>
+        <label>Contribution employé / chèque (€)</label>
+        <input id="ct" type="number" step="0.01" value="2.8">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>13e mois (ce mois)</label>
+        <input id="t13" type="number" step="0.01" value="0">
+      </div>
+      <div>
+        <label>Bonus exceptionnel (ce mois)</label>
+        <input id="bonus" type="number" step="0.01" value="0">
+      </div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div>
+        <label>Crédits d’impôt (CIS+CPA+CIM) mensuels</label>
+        <input id="credits" type="number" step="0.01" value="0">
+      </div>
+      <div>
+        <label>Retenues volontaires (prévoyance, autres)</label>
+        <input id="retvol" type="number" step="0.01" value="0">
+      </div>
+    </div>
+
+    <div id="as-only" style="display:none; margin-top:10px">
+      <div class="pill">Profil: Aide‑Soignant</div>
+      <div class="row">
+        <div><label>Prime Dimanche (montant)</label><input id="pdim" type="number" step="0.01" value="0"></div>
+        <div><label>Prime Nuit (montant direct)</label><input id="pnuit" type="number" step="0.01" value="0"></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div><label>Prime Jour Férié</label><input id="pferie" type="number" step="0.01" value="0"></div>
+        <div><label>Prime Pénibilité</label><input id="ppen" type="number" step="0.01" value="0"></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div><label>Prime Astreinte</label><input id="past" type="number" step="0.01" value="0"></div>
+        <div><label>Prime Ancienneté</label><input id="panc" type="number" step="0.01" value="0"></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div><label>Indemnité Repas</label><input id="irepas" type="number" step="0.01" value="0"></div>
+        <div><label>Indemnité Déplacement</label><input id="idepl" type="number" step="0.01" value="0"></div>
+      </div>
+      <div class="row" style="margin-top:8px">
+        <div><label>Indemnité Habillement</label><input id="ihab" type="number" step="0.01" value="0"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="card">
+    <h2>⚙️ Taux & Réglages</h2>
+    <div class="row">
+      <div><label>Pension CNAP %</label><input id="tp" type="number" step="0.01" value="8.0"></div>
+      <div><label>Maladie total % (régulier)</label><input id="tmal" type="number" step="0.01" value="3.05"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Dépendance %</label><input id="tdep" type="number" step="0.01" value="1.40"></div>
+      <div><label>Maladie “soins” % (sur OT base)</label><input id="tsoins" type="number" step="0.01" value="2.80"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>SSM mensuel (€)</label><input id="ssm" type="number" step="0.01" value="2703.74"></div>
+      <div><label>Maj HS Normales %</label><input id="mhn" type="number" step="0.1" value="40"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Maj HS Dimanche %</label><input id="mhd" type="number" step="0.1" value="70"></div>
+      <div><label>Maj HS Fériés %</label><input id="mhf" type="number" step="0.1" value="100"></div>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Maj Nuit %</label><input id="mnuit" type="number" step="0.1" value="15"></div>
+      <div><label>Maj Permanence %</label><input id="mperma" type="number" step="0.1" value="10"></div>
+    </div>
+
+    <details style="margin-top:10px">
+      <summary>📊 Barème IR (annuel) — ajoutez vos tranches</summary>
+      <p class="muted">Le calcul IR utilise une base annuelle estimée et ce barème. Laissez vide pour IR=0 (simulation rapide).</p>
+      <table class="table" id="bareme">
+        <thead><tr><th>Borne Inf</th><th>Borne Sup</th><th>Taux %</th><th>Impôt fixe à la borne</th><th></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div style="display:flex;gap:8px;margin-top:8px">
+        <button class="btn" onclick="addRow()">Ajouter une tranche</button>
+        <button class="btn" onclick="clearBareme()">Vider</button>
+      </div>
+    </details>
+
+    <div style="display:flex;gap:8px;align-items:center;margin-top:10px">
+      <button class="btn primary" onclick="calc()">Calculer</button>
+      <button class="btn" onclick="resetAll()">Réinitialiser</button>
+    </div>
+
+    <div class="grid4" id="metrics" style="margin-top:10px">
+      <div class="metric"><div class="title">Brut régulier</div><div class="val" id="m1">0,00 €</div></div>
+      <div class="metric"><div class="title">OT Base 100%</div><div class="val" id="m2">0,00 €</div></div>
+      <div class="metric"><div class="title">OT Primes</div><div class="val" id="m3">0,00 €</div></div>
+      <div class="metric"><div class="title">Base IR annuelle</div><div class="val" id="m4">0,00 €</div></div>
+    </div>
+    <div class="grid4" style="margin-top:8px">
+      <div class="metric"><div class="title">Cotisations totales</div><div class="val" id="m5">0,00 €</div></div>
+      <div class="metric"><div class="title">IR mensuel</div><div class="val" id="m6">0,00 €</div></div>
+      <div class="metric"><div class="title">Indemnités non imposables</div><div class="val" id="m7">0,00 €</div></div>
+      <div class="metric"><div class="title">Net à payer</div><div class="val" id="m8">0,00 €</div></div>
+    </div>
+
+    <details style="margin-top:10px">
+      <summary>Détail des calculs</summary>
+      <table class="table">
+        <tbody id="detail"></tbody>
+      </table>
+    </details>
+  </div>
+</div>
+
+<div class="footer">
+  <p>💡 Cette app calcule localement dans votre navigateur (aucune donnée envoyée). Mettez à jour les taux/SSM/IR selon les sources officielles. Profil Aide‑Soignant ajoute des primes & indemnités spécifiques.</p>
+</div>
+
+<script>
+const fmt = n => (isFinite(n)? n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '0,00');
+function getv(id){ return parseFloat(document.getElementById(id).value||'0'); }
+function setText(id,val){ document.getElementById(id).textContent = fmt(val)+' €'; }
+function addRow(){
+  const tb = document.querySelector('#bareme tbody');
+  const tr = document.createElement('tr');
+  tr.innerHTML = '<td><input type="number" step="0.01" value="0"></td>'+
+                 '<td><input type="number" step="0.01" value="0"></td>'+
+                 '<td><input type="number" step="0.01" value="0"></td>'+
+                 '<td><input type="number" step="0.01" value="0"></td>'+
+                 '<td><button class="btn" onclick="this.closest(\\'tr\\').remove()">Supprimer</button></td>';
+  tb.appendChild(tr);
+}
+function clearBareme(){ document.querySelector('#bareme tbody').innerHTML=''; }
+function computeTaxAnnual(base){
+  const rows = [...document.querySelectorAll('#bareme tbody tr')];
+  if (rows.length===0 || base<=0) return 0;
+  rows.sort((a,b)=>parseFloat(a.children[0].firstElementChild.value)-parseFloat(b.children[0].firstElementChild.value));
+  let tax=0;
+  for(const r of rows){
+    const low=parseFloat(r.children[0].firstElementChild.value||'0');
+    const up=parseFloat(r.children[1].firstElementChild.value||'0');
+    const rate=parseFloat(r.children[2].firstElementChild.value||'0')/100;
+    const fixed=parseFloat(r.children[3].firstElementChild.value||'0');
+    if (base>low){
+      const upper = up>0? up : base;
+      const taxable = Math.max(Math.min(base, upper)-low, 0);
+      tax += fixed + taxable*rate;
+    }
+  }
+  return Math.max(tax,0);
+}
+function calc(){
+  const prof = document.querySelector('.tab.active').dataset.prof;
+  const brut = getv('brut'), hbase=getv('hbase');
+  const th = hbase>0? brut/hbase : 0;
+  const hsn=getv('hsn'), hsd=getv('hsd'), hsf=getv('hsf'), hnuit=getv('hnuit'), hperma=getv('hperma'), habs=getv('habs');
+  const pf=getv('pf'), pv=getv('pv'), avt=getv('avt'), indemn=getv('indemn');
+  const nbt=getv('nbt'), ct=getv('ct'), t13=getv('t13'), bonus=getv('bonus'), credits=getv('credits'), retvol=getv('retvol');
+  const tp=getv('tp'), tmal=getv('tmal'), tdep=getv('tdep'), tsoins=getv('tsoins'), ssm=getv('ssm');
+  const mhn=getv('mhn'), mhd=getv('mhd'), mhf=getv('mhf'), mnuit=getv('mnuit'), mperma=getv('mperma');
+
+  const pdim=getv('pdim'), pnuit=getv('pnuit'), pferie=getv('pferie'), ppen=getv('ppen'), past=getv('past'), panc=getv('panc');
+  const irepas=getv('irepas'), idepl=getv('idepl'), ihab=getv('ihab');
+
+  const retenueTickets = nbt*ct;
+  const retenueAbs = habs*th;
+  const primeNuitCalc = hnuit*th*(mnuit/100);
+  const primePermaCalc = hperma*th*(mperma/100);
+  const otBase = (hsn+hsd+hsf)*th;
+  let otPrime = hsn*th*(mhn/100) + hsd*th*(mhd/100) + hsf*th*(mhf/100);
+
+  let primesImpos = pf+pv+avt+t13+bonus + primeNuitCalc + primePermaCalc;
+  if (prof==='as'){ primesImpos += (pdim+pnuit+pferie+ppen+past+panc); }
+
+  const brutReg = brut + primesImpos - retenueAbs - retenueTickets;
+  const assPM = brutReg;
+  const assDepReg = Math.max(brutReg - (ssm/3), 0);
+  const assOT = otBase;
+  const cP = assPM*(tp/100);
+  const cM = assPM*(tmal/100);
+  const cDreg = assDepReg*(tdep/100);
+  const cDot = assOT*(tdep/100);
+  const cSot = assOT*(tsoins/100);
+  const cotTotal = cP+cM+cDreg+cDot+cSot;
+
+  const baseIRAn = Math.max((brutReg - (cP+cM))*12, 0);
+  const impAnn = computeTaxAnnual(baseIRAn);
+  const irm = Math.max(impAnn/12 - credits, 0);
+
+  const netReg = brutReg - (cP+cM+cDreg) - irm;
+  const netOT = otBase - (cDot+cSot);
+  const netFinal = netReg + netOT + otPrime + indemn - retvol + (prof==='as' ? (irepas+idepl+ihab) : 0);
+
+  setText('m1',brutReg); setText('m2',otBase); setText('m3',otPrime); setText('m4',baseIRAn);
+  setText('m5',cotTotal); setText('m6',irm); setText('m7', (prof==='as'? indemn+irepas+idepl+ihab : indemn)); setText('m8',netFinal);
+
+  const rows=[
+    ['Taux horaire', th], ['Retenue tickets', retenueTickets], ['Retenue absence', retenueAbs],
+    ['Prime nuit (calculée)', primeNuitCalc], ['Prime permanence (calculée)', primePermaCalc],
+    ['OT base', otBase], ['OT primes', otPrime],
+    ['Pension', cP], ['Maladie total', cM], ['Dépendance régulier', cDreg], ['Dépendance OT', cDot], ['Maladie soins OT', cSot],
+    ['IR mensuel', irm], ['Net régulier', netReg], ['Net OT base', netOT], ['Net final', netFinal]
+  ];
+  const tb = document.getElementById('detail'); tb.innerHTML='';
+  for(const [k,v] of rows){
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td>${k}</td><td class="right">${fmt(v)} €</td>`;
+    tb.appendChild(tr);
+  }
+}
+function resetAll(){ location.reload(); }
+document.querySelectorAll('.tab').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    el.classList.add('active');
+    const prof = el.dataset.prof;
+    document.getElementById('as-only').style.display = prof==='as' ? 'block':'none';
+  });
+});
+</script>
+</body>
+</html>
