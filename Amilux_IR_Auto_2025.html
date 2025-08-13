@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>💶 Amilux — Paie Luxembourg (IR 2025 Auto)</title>
+<style>
+  body{margin:0;background:#0b1020;color:#e5e7eb;font-family:system-ui,Segoe UI,Roboto,Arial}
+  header{padding:14px 16px;background:linear-gradient(90deg,#0b1020,#0f172a);border-bottom:1px solid #0f1a2a}
+  header h1{margin:0;font-size:18px}
+  .wrap{max-width:1100px;margin:16px auto;padding:0 14px;display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:12px}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  label{font-size:12px;color:#94a3b8}
+  input,select{width:100%;padding:9px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);color:#e5e7eb;border-radius:10px;outline:0}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .metric{padding:10px;border-radius:10px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08)}
+  .metric .t{font-size:12px;color:#94a3b8}.metric .v{font-weight:800;font-size:20px}
+  .muted{color:#94a3b8;font-size:12px}
+  .note{margin-top:6px;font-size:12px;color:#a5b4fc}
+</style>
+</head>
+<body>
+<header><h1>💶 <b>Amilux</b> — Paie Luxembourg (IR 2025 Auto)</h1></header>
+
+<div class="wrap">
+  <div class="card">
+    <div class="row">
+      <div><label>Classe</label><select id="classe"><option>1</option><option>1a</option><option>2</option></select></div>
+      <div><label>Enfants</label><input id="enfants" type="number" min="0" step="1" value="0"></div>
+    </div>
+    <div class="row">
+      <div><label>Brut mensuel (hors HS)</label><input id="brut" type="number" step="0.01" value="3000"></div>
+      <div><label>Heures base</label><input id="hbase" type="number" step="0.01" value="173"></div>
+    </div>
+    <div class="row">
+      <div><label>HS normales (h)</label><input id="hsn" type="number" step="0.01" value="0"></div>
+      <div><label>HS dimanche (h)</label><input id="hsd" type="number" step="0.01" value="0"></div>
+    </div>
+    <div class="row">
+      <div><label>HS fériés (h)</label><input id="hsf" type="number" step="0.01" value="0"></div>
+      <div><label>Absence non payée (h)</label><input id="habs" type="number" step="0.01" value="0"></div>
+    </div>
+    <div class="row">
+      <div><label>Primes fixes (imp.)</label><input id="pf" type="number" step="0.01" value="0"></div>
+      <div><label>Primes variables (imp.)</label><input id="pv" type="number" step="0.01" value="0"></div>
+    </div>
+    <div class="row">
+      <div><label>Avantages imposables</label><input id="avt" type="number" step="0.01" value="0"></div>
+      <div><label>Indemnités non imposables</label><input id="indemn" type="number" step="0.01" value="0"></div>
+    </div>
+    <div class="row">
+      <div><label>Tickets repas (nb)</label><input id="nbt" type="number" step="1" value="0"></div>
+      <div><label>Contribution employé/cheque (€)</label><input id="ct" type="number" step="0.01" value="2.8"></div>
+    </div>
+    <div class="row">
+      <div><label>13e mois (ce mois)</label><input id="t13" type="number" step="0.01" value="0"></div>
+      <div><label>Bonus exceptionnel</label><input id="bonus" type="number" step="0.01" value="0"></div>
+    </div>
+    <div class="row">
+      <div><label>Crédits d’impôt mensuels</label><input id="credits" type="number" step="0.01" value="0"></div>
+      <div><label>Retenues volontaires</label><input id="retvol" type="number" step="0.01" value="0"></div>
+    </div>
+
+    <div class="muted note">
+      IR 2025 calculé automatiquement (barème classe 1 de l’ACD, <em>approximation</em> pour 1a/2 via crédit CIM et splitting). 
+    </div>
+
+    <div class="muted" style="margin-top:6px">
+      Taux par défaut: Pension 8%, Maladie 3,05%, Dépendance 1,40%, Soins OT 2,80%, SSM 2 703,74 €.
+    </div>
+
+  </div>
+
+  <div class="card">
+    <h3>Résultats (Auto)</h3>
+    <div class="grid4">
+      <div class="metric"><div class="t">Brut régulier</div><div class="v" id="m1">0,00 €</div></div>
+      <div class="metric"><div class="t">OT Base 100%</div><div class="v" id="m2">0,00 €</div></div>
+      <div class="metric"><div class="t">OT Primes</div><div class="v" id="m3">0,00 €</div></div>
+      <div class="metric"><div class="t">Base IR annuelle</div><div class="v" id="m4">0,00 €</div></div>
+    </div>
+    <div class="grid4" style="margin-top:8px">
+      <div class="metric"><div class="t">Cotisations totales</div><div class="v" id="m5">0,00 €</div></div>
+      <div class="metric"><div class="t">IR mensuel</div><div class="v" id="m6">0,00 €</div></div>
+      <div class="metric"><div class="t">Indemnités non imposables</div><div class="v" id="m7">0,00 €</div></div>
+      <div class="metric"><div class="t">Net à payer</div><div class="v" id="m8">0,00 €</div></div>
+    </div>
+    <p class="muted">NB: Le calcul inclut la surtaxe de solidarité 7% (9% si hauts revenus), cf. CSL.</p>
+  </div>
+</div>
+
+<script>
+const fmt = n => (isFinite(n)? n.toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}) : '0,00');
+function setT(id,val){ document.getElementById(id).textContent = fmt(val)+' €'; }
+function v(id){ const el=document.getElementById(id); return el? parseFloat(el.value||'0'):0; }
+
+// Barème 2025 (classe 1) — seuils approximatifs d'après ACD/CSL, pour simulation.
+const BRACKETS_C1 = [
+  [0, 13230, 0, 0],
+  [13230, 15435, 0.08, 0],
+  [15435, 17640, 0.09, 0],
+  [17640, 19845, 0.10, 0],
+  [19845, 22050, 0.11, 0],
+  [22050, 24255, 0.12, 0],
+  [24255, 26550, 0.14, 0],
+  [26550, 28845, 0.16, 0],
+  [28845, 31140, 0.18, 0],
+  [31140, 33435, 0.20, 0],
+  [33435, 35730, 0.22, 0],
+  [35730, 38025, 0.24, 0],
+  [38025, 40320, 0.26, 0],
+  [40320, 42615, 0.28, 0],
+  [42615, 44910, 0.30, 0],
+  [44910, 47205, 0.32, 0],
+  [47205, 49500, 0.34, 0],
+  [49500, 51795, 0.36, 0],
+  [51795, 54090, 0.38, 0],
+  [54090, 100000, 0.39, 0],   // palier intermédiaire élargi
+  [100000, 150000, 0.40, 0],
+  [150000, 234870, 0.41, 0],
+  [234870, 1e9, 0.42, 0]
+];
+
+function tax_class1(base){
+  if(base<=0) return 0;
+  let t=0;
+  for(const [lo,hi,rate,fixed] of BRACKETS_C1){
+    if(base>lo){
+      const up = Math.min(base,hi);
+      const taxable = Math.max(0, up-lo);
+      t += fixed + taxable*rate;
+    } else break;
+  }
+  return Math.max(0,t);
+}
+
+// 1a approximation: barème classe 1 + crédit monoparental (CIM) réglable via "credits" champ
+// 2 approximation: splitting = 2 * tax_class1(base/2)
+function tax_annual(base, classe, credits_total=0){
+  let imp = 0;
+  if(classe==='2'){
+    imp = 2*tax_class1(base/2);
+  }else{
+    imp = tax_class1(base);
+  }
+  // solidarité 7% / 9% (au-delà de 150k classe 1/1a, 300k classe 2)
+  let seuil = (classe==='2')? 300000 : 150000;
+  let solidarity_rate = base>seuil ? 0.09 : 0.07;
+  const imp_plus = imp * (1+solidarity_rate);
+  // crédits d'impôt (CIS/CPA/CIM) passés en "credits_total"
+  return Math.max(imp_plus - credits_total*12, 0);
+}
+
+function recalc(){
+  // entrées
+  const brut=v('brut'), hbase=v('hbase'); const th = hbase>0? brut/hbase:0;
+  const hsn=v('hsn'), hsd=v('hsd'), hsf=v('hsf'), habs=v('habs');
+  const pf=v('pf'), pv=v('pv'), avt=v('avt'), indemn=v('indemn'), nbt=v('nbt'), ct=v('ct'), t13=v('t13'), bonus=v('bonus');
+  const credits=v('credits'), retvol=v('retvol');
+  const classe = document.getElementById('classe').value;
+
+  // taux fixes
+  const tp=0.08, tmal=0.0305, tdep=0.014, tsoins=0.028, ssm=2703.74;
+  const mhn=0.40, mhd=0.70, mhf=1.00;
+
+  const retenueTickets = nbt*ct, retenueAbs=habs*th;
+  const otBase=(hsn+hsd+hsf)*th;
+  const otPrime=hsn*th*mhn + hsd*th*mhd + hsf*th*mhf;
+  const primesImpos=pf+pv+avt+t13+bonus;
+  const brutReg=brut+primesImpos-retenueAbs-retenueTickets;
+
+  const cP=brutReg*tp, cM=brutReg*tmal;
+  const assDepReg=Math.max(brutReg-(ssm/3),0), cDreg=assDepReg*tdep;
+  const cDot=otBase*tdep, cSot=otBase*tsoins;
+  const cotTotal=cP+cM+cDreg+cDot+cSot;
+
+  const baseIRAn=Math.max((brutReg-(cP+cM))*12,0);
+  const impAnn=tax_annual(baseIRAn, classe, credits);
+  const irm = impAnn/12;
+
+  const netReg=brutReg-(cP+cM+cDreg)-irm;
+  const netOT=otBase-(cDot+cSot);
+  const netFinal=netReg+netOT+otPrime+indemn-retvol;
+
+  setT('m1',brutReg); setT('m2',otBase); setT('m3',otPrime); setT('m4',baseIRAn);
+  setT('m5',cotTotal); setT('m6',irm); setT('m7',indemn); setT('m8',netFinal);
+}
+
+document.querySelectorAll('input,select').forEach(el=>{
+  el.addEventListener('input', recalc);
+  el.addEventListener('change', recalc);
+});
+window.addEventListener('DOMContentLoaded', recalc);
+</script>
+</body>
+</html>
